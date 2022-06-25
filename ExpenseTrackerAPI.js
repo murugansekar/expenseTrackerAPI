@@ -6,20 +6,25 @@ const msg = document.querySelector('.msg');
 myForm.addEventListener('submit', onSubmit);
 document.addEventListener('DOMContentLoaded', DisplayExpenses)
 
-function DisplayExpenses()
+async function DisplayExpenses()
 {
-  axios.get("https://crudcrud.com/api/bfc88949991a4b009bc61b291e69a4bb/expenses")
-  .then((res) => { 
+  try
+  {
+  let res = await axios.get("https://crudcrud.com/api/7b8eecf732774d8fb607585d2d407341/expenses")
   var html = ""
   for(var i=0;i<res.data.length;i++)
   {
     html+='<li>' + res.data[i].expenseamount +" - " + res.data[i].description +" - " + res.data[i].category + ' <button onclick="deleteRow('+i+')"> Delete Expense </button>' + ' <button onclick="editRow('+i+')"> Edit Expense </button>' + '</li>'  
   }
-  document.getElementById("output").innerHTML = html   
-  }).catch((err) => console.log(err))
+  document.getElementById("output").innerHTML = html 
+  }
+  catch(err)
+  {
+    console.log(err)
+  } 
 }
 
-function onSubmit(e) 
+async function onSubmit(e) 
 {
   e.preventDefault();
   if(expenseamountInput.value === '' || descriptionInput.value === '' || categoryInput.value === '') 
@@ -31,30 +36,57 @@ function onSubmit(e)
   else 
   {
     let myNewObj={expenseamount:expenseamountInput.value,description:descriptionInput.value,category:categoryInput.value}
-    axios.post("https://crudcrud.com/api/bfc88949991a4b009bc61b291e69a4bb/expenses",myNewObj).then( res => DisplayExpenses()).catch( err => console.log(err))
+    try
+    {
+      let res = await axios.post("https://crudcrud.com/api/7b8eecf732774d8fb607585d2d407341/expenses", myNewObj)
+      DisplayExpenses()
+    }
+    catch(err)
+    {
+      console.log(err)
+    }
     expenseamountInput.value = '';
     descriptionInput.value = '';
     categoryInput.value = '';   
   }
 }
 
-function deleteRow(i)
-{
-  axios.get("https://crudcrud.com/api/bfc88949991a4b009bc61b291e69a4bb/expenses").then((res) => {
-    let url = "https://crudcrud.com/api/bfc88949991a4b009bc61b291e69a4bb/expenses/"+res.data[i]._id;
-    axios.delete(url).then( res => DisplayExpenses()).catch( err => console.log(err))
-    }).catch( err => console.log(err))
+async function deleteRow(i)
+{   
+  try
+  {
+    let res = await axios.get("https://crudcrud.com/api/7b8eecf732774d8fb607585d2d407341/expenses")
+    let url = "https://crudcrud.com/api/7b8eecf732774d8fb607585d2d407341/expenses/"+res.data[i]._id;  
+    try
+    {
+      let res = await axios.delete(url)
+      DisplayExpenses()
+    }
+    catch(err)
+    {
+      console.log(err)
+    }
+  }
+    catch(err)
+    {
+      console.log(err)
+    }  
 }
 
-function editRow(i)
+async function editRow(i)
 {
-  axios.get("https://crudcrud.com/api/bfc88949991a4b009bc61b291e69a4bb/expenses").then( res => {
+  try
+  {
+    let res = await axios.get("https://crudcrud.com/api/7b8eecf732774d8fb607585d2d407341/expenses")
     expenseamountInput.value = res.data[i].expenseamount;
     descriptionInput.value = res.data[i].description;
     categoryInput.value = res.data[i].category;
     deleteRow(i);
     DisplayExpenses()
-  }).catch( err => console.log(err))
-
+  }
+  catch(err)
+  {
+    console.log(err)
+  }  
 }
 
